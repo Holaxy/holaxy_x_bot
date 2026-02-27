@@ -8,7 +8,8 @@ TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID')
 
 # ----- 這裡設定你想監控的看板與關鍵字 -----
 TARGETS = {
-    'Lifeismoney': ['情報', '特價', '情報'] # 先用超普遍的關鍵字測試
+    'Lifeismoney': ['情報', '特價', '情報'],
+    'Gossiping': ['新聞', '問卦']
 }
 HISTORY_FILE = 'history.txt'
 
@@ -79,7 +80,4 @@ def main():
         print("沒有發現新文章。")
 
 if __name__ == "__main__":
-    print("=== 開始強制執行 Telegram 測試 ===")
-    send_telegram_notify("🤖 這是來自 GitHub Actions 的強制測試訊息！如果你看到這個，代表連線成功！")
-    print("=== 測試結束，開始執行主要爬蟲邏輯 ===\n")
     main()
