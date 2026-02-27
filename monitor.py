@@ -8,8 +8,9 @@ TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID')
 
 # ----- 這裡設定你想監控的看板與關鍵字 -----
 TARGETS = {
-    'Lifeismoney': ['情報', '特價', '情報'],
-    'Gossiping': ['新聞', '問卦']
+    'Lifeismoney': ['情報'],
+    'DC_SALE': ['6700'],
+    'Japan_Travel': ['Skyliner','京成']
 }
 HISTORY_FILE = 'history.txt'
 
