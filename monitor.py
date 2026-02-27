@@ -2,27 +2,37 @@ import os
 import requests
 import xml.etree.ElementTree as ET
 
+# 從 GitHub Secrets 取得 Token 與 Chat ID
 TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID')
 
 # ----- 這裡設定你想監控的看板與關鍵字 -----
 TARGETS = {
-    'Japan_Travel': ['京成', 'Slyliner', 'slyliner'],
-    'Lifeismoney': ['特價', '情報', '免費']
+    'Lifeismoney': ['情報', '特價', '情報'] # 先用超普遍的關鍵字測試
 }
 HISTORY_FILE = 'history.txt'
 
 def send_telegram_notify(msg):
+    # 加上詳細的 Log 輸出，方便我們在 Actions 裡看報錯原因
+    if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
+        print("❌ 錯誤：找不到 TELEGRAM_TOKEN 或 TELEGRAM_CHAT_ID 環境變數！")
+        return
+
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     payload = {
         "chat_id": TELEGRAM_CHAT_ID,
         "text": msg,
         "parse_mode": "HTML"
     }
+    
+    print(f"準備發送訊息至 Chat ID: {TELEGRAM_CHAT_ID}")
     try:
-        requests.post(url, json=payload)
+        response = requests.post(url, json=payload)
+        # 印出 Telegram 伺服器的完整回應
+        print(f"Telegram API 回應碼: {response.status_code}")
+        print(f"Telegram API 回應內容: {response.text}")
     except Exception as e:
-        print(f"發送 Telegram 失敗: {e}")
+        print(f"請求 Telegram 失敗: {e}")
 
 def load_history():
     if not os.path.exists(HISTORY_FILE):
@@ -40,7 +50,7 @@ def main():
     new_notifies = 0
 
     for board, keywords in TARGETS.items():
-        print(f"正在檢查 {board} 板...")
+        print(f"\n正在檢查 {board} 板...")
         url = f'https://www.ptt.cc/atom/{board}.xml'
         try:
             res = requests.get(url, timeout=10)
@@ -58,7 +68,7 @@ def main():
                     send_telegram_notify(msg)
                     history.add(link)
                     new_notifies += 1
-                    print(f"已通知: {title}")
+                    print(f"已排程通知: {title}")
                     
         except Exception as e:
             print(f"抓取 {board} 發生錯誤: {e}")
@@ -69,4 +79,7 @@ def main():
         print("沒有發現新文章。")
 
 if __name__ == "__main__":
+    print("=== 開始強制執行 Telegram 測試 ===")
+    send_telegram_notify("🤖 這是來自 GitHub Actions 的強制測試訊息！如果你看到這個，代表連線成功！")
+    print("=== 測試結束，開始執行主要爬蟲邏輯 ===\n")
     main()
